@@ -1,28 +1,27 @@
 blueprint:
-  script:
-    sequence:
-      - action: media_player.play_media
-        metadata: {}
-        data:
-          media_content_type: "{{ media_content_type }}"
-          media_content_id: https://open.spotify.com/show/{{ spotify_podcast_id }}
-        target:
-          entity_id: "{{ spotify_entity_id }}"
-    fields:
-      spotify_entity_id:
-        selector:
-          entity: {}
-        name: spotify_entity_id
-        required: true
-      media_content_type:
-        selector:
-          text: {}
-        name: media_content_type
-        default: playlist
-      spotify_podcast_id:
-        selector:
-          text: null
-        name: spotify_podcast_id
-        required: true
-    alias: Play podcast in Spotify
-    icon: mdi:spotify
+  sequence:
+    - action: media_player.play_media
+      metadata: {}
+      data:
+        media_content_type: "{{ media_content_type }}"
+        media_content_id: https://open.spotify.com/show/{{ spotify_podcast_id }}
+      target:
+        entity_id: "{{ spotify_entity_id }}"
+  fields:
+    spotify_entity_id:
+      selector:
+        entity: {}
+      name: spotify_entity_id
+      required: true
+    media_content_type:
+      selector:
+        text: {}
+      name: media_content_type
+      default: playlist
+    spotify_podcast_id:
+      selector:
+        text: null
+      name: spotify_podcast_id
+      required: true
+  alias: Play podcast in Spotify
+  icon: mdi:spotify
