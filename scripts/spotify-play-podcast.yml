@@ -9,17 +9,19 @@ blueprint:
         entity:
           filter:
             integration: spotify
-    podcast_id:
-      name: Spotify Podcast
-      description: Podcast show URL (from Share menu)
-      selector:
-        text:
-          type: url
-    
+
+fields:
+  spotify_podcast_url:
+    description: Podcast show URL (from Share menu)
+    selector:
+      text: null
+    name: spotify_podcast_id
+    required: true
+
 sequence:
   - action: media_player.play_media
     data:
-      media_content_type: show
-      media_content_id: !input podcast_id
+      media_content_type: playlist
+      media_content_id: "{{ spotify_podcast_url }}"
     target:
       entity_id: !input entity_id
