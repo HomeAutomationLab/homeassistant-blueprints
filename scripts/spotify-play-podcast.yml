@@ -5,20 +5,16 @@ blueprint:
   input:
     entity_id:
       name: Spotify Entity
-      icon: mdi:spotify
       selector:
         entity:
           filter:
             integration: spotify
-      required: true
     podcast_id:
       name: Spotify Podcast
-      icon: mdi:podcast
       description: Podcast show URL (from Share menu)
       selector:
         text:
           type: url
-      required: true
     
 sequence:
   - action: media_player.play_media
