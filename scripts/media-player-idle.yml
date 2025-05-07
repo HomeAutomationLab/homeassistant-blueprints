@@ -8,7 +8,7 @@ fields:
     selector:
       entity:
         filter: 
-          domain: "media_player"
+          - domain: "media_player"
     name: Media Player
     required: true
 
