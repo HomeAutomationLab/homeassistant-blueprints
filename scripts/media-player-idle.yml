@@ -7,7 +7,8 @@ fields:
   media_player_entity_id:
     selector:
       entity:
-        filter: "media_player"
+        filter: 
+          domain: "media_player"
     name: Media Player
     required: true
 
