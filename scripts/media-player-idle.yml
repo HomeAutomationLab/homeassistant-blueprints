@@ -1,0 +1,17 @@
+blueprint:
+  name: Wait for media player to be idle
+  domain: script
+  author: Home Automation Lab
+
+fields:
+  media_player_entity_id:
+    selector:
+      entity:
+        filter: "media_player"
+    name: Media Player
+    required: true
+
+sequence:
+  - wait_template: "{{ is_state(media_player_entity_id, 'idle') }}"
+    continue_on_timeout: false
+    alias: Wait for media player state to be 'idle'
