@@ -1,0 +1,36 @@
+blueprint:
+  name: Play TTS and wait for media player to be idle
+  domain: script
+  author: Home Automation Lab
+  input:
+    tts_entity_id:
+      name: TTS
+      selector:
+        entity:
+          filter:
+            - domain: tts
+
+fields:
+  media_player_entity_id:
+    selector:
+      entity:
+        filter: 
+          - domain: media_player
+    name: Media Player
+    required: true
+  tts_message:
+    selector:
+      text:
+    name: TTS Message
+    required: true
+
+sequence:
+  - action: tts.speak
+    data:
+      message: "{{ tts_message }}"
+      media_player_entity_id: "{{ media_player_entity_id }}"
+    target:
+      entity_id: !input tts_entity_id
+  - wait_template: "{{ is_state(media_player_entity_id, 'idle') }}"
+    continue_on_timeout: false
+    alias: Wait for media player state to be 'idle'
