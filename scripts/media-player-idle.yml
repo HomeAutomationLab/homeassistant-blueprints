@@ -13,6 +13,9 @@ fields:
     required: true
 
 sequence:
+  - wait_template: "{{ is_state(media_player_entity_id, 'playing') }}"
+    timeout: "00:00:02"
+    alias: Wait 3 seconds for media player state to be 'playing'
   - wait_template: "{{ is_state(media_player_entity_id, 'idle') }}"
     continue_on_timeout: false
     alias: Wait for media player state to be 'idle'
