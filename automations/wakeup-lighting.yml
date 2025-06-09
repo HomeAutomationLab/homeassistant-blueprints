@@ -8,13 +8,7 @@ blueprint:
     **Requires [Light Fader](https://gist.github.com/handcoding/c2fe8a9e895262cefbee886e0019cada) script.**
 
     [![Home Automation Lab](https://raw.githubusercontent.com/HomeAutomationLab/global-assets/main/img/logo_small.png)](https://homeautomationlab.tv)
-  input:
-    alias:
-      name: Automation Alias
-      selector:
-        text:
-      default: My Wake-up Lighting
-    
+  input:    
     alarm_entity_id:
       name: Alarm Helper
       description: Date/time or sensor helper with the next alarm time
@@ -60,7 +54,6 @@ blueprint:
         seconds: 0
 
 
-alias: !input alias
 description: ""
 
 mode: single
@@ -71,7 +64,7 @@ trigger_variables:
   alarm_enabled_entity_id: ! alarm_enabled_entity_id
 
 triggers:
-  - alias: 30 minutes before alarm
+  - alias: Before alarm
     value_template: >-
       {% if alarm_entity_id.startswith('sensor.') or ( state_attr(alarm_entity_id, 'has_date') and state_attr(alarm_entity_id, 'has_time') ) %}
         {% set next_alarm = states(alarm_entity_id) | as_datetime %}
@@ -85,7 +78,7 @@ triggers:
 conditions:
   - alias: If alarm is enabled for today
     condition: template
-    value_template: "{{ states(alarm_enabled_entity_id) == 'on' }}"
+    value_template: "{{ is_state(alarm_enabled_entity_id, 'on') }}"
 
 actions:
   - alias: "Set variables" 
@@ -116,10 +109,10 @@ actions:
     wait_for_trigger:
       - trigger: template
         value_template: "{{ state_attr(light_entity_id, 'brightness') == '100' }}"
-    timeout: "{{ fade_duration }}"
+    timeout: "{{ fade_duration.hours }}:{{ fade_duration.minutes }}:{{ fade_duration.seconds }}"
   
   - alias: Wait
-    delay: "{{ off_duration }}"
+    delay: "{{ fade_duration.hours }}:{{ fade_duration.minutes }}:{{ fade_duration.seconds }}"
 
   - alias: Turn off lights
     action: light.turn_off
