@@ -1,0 +1,129 @@
+blueprint:
+  name: Wakeup Lighting
+  domain: automation
+  author: Home Automation Lab
+  description: >-
+    This is the Wakeup Lighting automation featured in [Epsiode 3: My Morning Wake-Up Routine with Home Assistant](https://links.homeautomationlab.tv/episode-003).
+
+    **Requires [Light Fader](https://gist.github.com/handcoding/c2fe8a9e895262cefbee886e0019cada) script.**
+
+    [![Home Automation Lab](https://raw.githubusercontent.com/HomeAutomationLab/global-assets/main/img/logo_small.png)](https://homeautomationlab.tv)
+  input:
+    alias:
+      name: Automation Alias
+      selector:
+        text:
+      default: My Wake-up Lighting
+    
+    alarm_entity_id:
+      name: Alarm Helper
+      description: Date/time or sensor helper with the next alarm time
+      selector:
+        entity:
+          filter:
+            domain:
+              - input_datetime
+              - sensor
+    
+    alarm_enabled_entity_id:
+      name: Alarm Enabled Helper
+      selector:
+        entity:
+          filter:
+            domain: input_boolean
+    
+    light_entity_id:
+      name: Light Entity
+      selector:
+        entity:
+          filter:
+            domain: light
+    
+    off_duration:
+      name: Lights Off Duration
+      description: Duration after lights reach full brightness should they be turned off
+      selector:
+        duration:
+      default:
+        hours: 1
+        minutes: 0
+        seconds: 0
+    
+    before_alarm:
+      name: Alarm Duration Trigger
+      description: Duration before alarm to trigger automation
+      selector:
+        duration:
+      default:
+        hours: 0
+        minutes: 30
+        seconds: 0
+
+
+alias: !input alias
+description: ""
+
+mode: single
+
+trigger_variables:
+  alarm_entity_id: !input alarm_entity_id
+  before_alarm: !input before_alarm
+  alarm_enabled_entity_id: ! alarm_enabled_entity_id
+
+triggers:
+  - alias: 30 minutes before alarm
+    value_template: >-
+      {% if alarm_entity_id.startswith('sensor.') or ( state_attr(alarm_entity_id, 'has_date') and state_attr(alarm_entity_id, 'has_time') ) %}
+        {% set next_alarm = states(alarm_entity_id) | as_datetime %}
+      {% else %}
+        {% set next_alarm = now().replace(hour=state_attr(alarm_entity_id, 'hour'), minute=state_attr(alarm_entity_id, 'minute'), second=0, microsecond=0) %}
+      {% endif %}
+      {{ now().replace(second=0, microsecond=0) == next_alarm - timedelta(**before_alarm) }}
+    enabled: true
+    trigger: template
+
+conditions:
+  - alias: If alarm is enabled for today
+    condition: template
+    value_template: "{{ states(alarm_enabled_entity_id) == 'on' }}"
+
+actions:
+  - alias: "Set variables" 
+    variables:
+      light_entity_id: !input light_entity_id
+      fade_duration: !input before_alarm
+      off_duration: !input off_duration
+  
+  - alias: Fade lights up
+    action: script.light_fader
+    metadata: {}
+    data:
+      lampBrightnessScale: zeroToOneHundred
+      easingTypeInput: easeInOutSine
+      endBrightnessPercent: 100
+      endBrightnessEntityScale: zeroToOneHundred
+      autoCancelThreshold: 10
+      shouldStopIfTheLampIsTurnedOffDuringTheFade: true
+      shouldResetTheStopEntityToOffAtStart: false
+      shouldInvertTheValueOfTheStopEntity: false
+      minimumStepDelayInMilliseconds: 100
+      shouldTryToUseNativeLampTransitionsToo: false
+      isDebugMode: false
+      light: "{{ light_entity_id }}"
+      transitionTime: "{{ fade_duration }}"
+  
+  - alias: Wait for lights to be at 100%
+    wait_for_trigger:
+      - trigger: template
+        value_template: "{{ state_attr(light_entity_id, 'brightness') == '100' }}"
+    timeout: "{{ fade_duration }}"
+  
+  - alias: Wait
+    delay: "{{ off_duration }}"
+
+  - alias: Turn off lights
+    action: light.turn_off
+    metadata: {}
+    data: {}
+    target:
+      entity_id: "{{ light_entity_id }}"

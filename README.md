@@ -6,6 +6,12 @@
 
 ## Automations
 
+### Wakeup Lighting
+
+Uses the [Light Fader script](https://gist.github.com/handcoding/c2fe8a9e895262cefbee886e0019cada) (must be installed manually) to fade up specified lights, wait until they're at 100% brightness, and turn them off after a specified time. 
+
+[![Open your Home Assistant instance and show the blueprint import dialog with a specific blueprint pre-filled.](https://my.home-assistant.io/badges/blueprint_import.svg)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fblueprints.homeautomationlab.tv%automation-wakeup-lighting)
+
 ## Scripts
 
 ### Play latest podcast episode on Spotify
